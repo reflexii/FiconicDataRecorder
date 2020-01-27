@@ -97,19 +97,19 @@
             android:id="@+id/value_x"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="X: 121" />
+            android:text="X: 0.0" />
 
         <TextView
             android:id="@+id/value_y"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Y: 456" />
+            android:text="Y: 0.0" />
 
         <TextView
             android:id="@+id/value_z"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Z: 789" />
+            android:text="Z: 0.0" />
     </LinearLayout>
 
     <LinearLayout
