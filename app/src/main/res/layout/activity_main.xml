@@ -6,13 +6,136 @@
     android:layout_height="match_parent"
     tools:context=".MainActivity">
 
-    <TextView
-        android:layout_width="wrap_content"
+    <LinearLayout
+        android:id="@+id/timestampLayout"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Hello World!"
+        android:layout_marginTop="16dp"
+        android:gravity="center"
+        android:orientation="vertical"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <TextView
+            android:id="@+id/timeStamp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:text="Timestamp"
+            android:textSize="24sp" />
+
+        <TextView
+            android:id="@+id/value_timestamp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/gpsLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="32dp"
+        android:orientation="vertical"
+        app:layout_constraintTop_toBottomOf="@+id/timestampLayout">
+
+        <TextView
+            android:id="@+id/GPS"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:text="GPS"
+            android:textSize="24sp" />
+
+        <TextView
+            android:id="@+id/value_position"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Position:" />
+
+        <TextView
+            android:id="@+id/value_bearing"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Bearing:" />
+
+        <TextView
+            android:id="@+id/value_altitude"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Altitude:" />
+
+        <TextView
+            android:id="@+id/value_speed"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Speed (km/h):" />
+
+        <TextView
+            android:id="@+id/value_accuracy"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Location accuracy (m):" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/accelLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="32dp"
+        android:orientation="vertical"
+        app:layout_constraintTop_toBottomOf="@+id/gpsLayout">
+
+        <TextView
+            android:id="@+id/Accelerometer"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:text="Accelerometer"
+            android:textSize="24sp" />
+
+        <TextView
+            android:id="@+id/value_x"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="X: 121" />
+
+        <TextView
+            android:id="@+id/value_y"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Y: 456" />
+
+        <TextView
+            android:id="@+id/value_z"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Z: 789" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/linearLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:layout_marginBottom="16dp"
+        android:gravity="center"
+        android:orientation="horizontal"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toBottomOf="@+id/accelLayout">
+
+        <Button
+            android:id="@+id/button_Start"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Start" />
+
+        <Button
+            android:id="@+id/button_Stop"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Stop" />
+    </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
