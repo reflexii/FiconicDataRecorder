@@ -6,12 +6,16 @@ import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import android.icu.text.SimpleDateFormat;
+import android.icu.util.Calendar;
+import android.location.Location;
+import android.location.LocationListener;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
-public class MainActivity extends AppCompatActivity implements SensorEventListener {
+public class MainActivity extends AppCompatActivity implements SensorEventListener, LocationListener {
 
     //Buttons
     private Button buttonStart;
@@ -32,6 +36,8 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     private float currentAccelX = 0f;
     private float currentAccelY = 0f;
     private float currentAccelZ = 0f;
+
+    private boolean startClicked = false;
 
     private SensorManager sensorManager;
 
@@ -57,7 +63,10 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         buttonStart.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                startClicked = true;
+
                 StartAccelerometer();
+                EnableTimeStamp();
             }
         });
 
@@ -65,6 +74,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         buttonStop.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                startClicked = false;
                 StopAccelerometer();
             }
         });
@@ -80,7 +90,6 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
     public void StopAccelerometer(){
         sensorManager.unregisterListener(this);
-        UpdateAccelerometerValues(0f, 0f, 0f);
     }
 
     //Change values on accelerometer
@@ -91,7 +100,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             currentAccelY = event.values[1];
             currentAccelZ = event.values[2];
 
-            UpdateAccelerometerValues(currentAccelX, currentAccelY, currentAccelZ);
+            UpdateAccelerometerValues();
         }
     }
 
@@ -101,10 +110,37 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
     }
 
-    public void UpdateAccelerometerValues(float x, float y, float z) {
-        text_X.setText("X: " + x);
-        text_Y.setText("Y: " + y);
-        text_Z.setText("Z: " + z);
+    public void UpdateAccelerometerValues() {
+        text_X.setText("X: " + currentAccelX);
+        text_Y.setText("Y: " + currentAccelY);
+        text_Z.setText("Z: " + currentAccelZ);
     }
 
+    public void EnableTimeStamp() {
+        Calendar calendar = Calendar.getInstance();
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd - HH:mm:ss");
+        text_Timestamp.setText(sdf.format(calendar.getTime()));
+
+
+    }
+
+    @Override
+    public void onLocationChanged(Location location) {
+
+    }
+
+    @Override
+    public void onStatusChanged(String provider, int status, Bundle extras) {
+
+    }
+
+    @Override
+    public void onProviderEnabled(String provider) {
+
+    }
+
+    @Override
+    public void onProviderDisabled(String provider) {
+
+    }
 }
