@@ -85,7 +85,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         buttonStop.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                StopAccelerometer();
+                StopIncomingData();
             }
         });
 
@@ -100,6 +100,17 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
     public void StopAccelerometer() {
         sensorManager.unregisterListener(this);
+    }
+
+    public void StopGPS() {
+        locationManager.removeUpdates(this);
+        locationManager = null;
+    }
+
+    public void StopIncomingData() {
+        StopAccelerometer();
+        StopGPS();
+
     }
 
     //Change values on accelerometer
