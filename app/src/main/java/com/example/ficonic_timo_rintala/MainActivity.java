@@ -4,6 +4,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.hardware.Sensor;
@@ -132,37 +133,45 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     }
 
     public void EnableLocation() {
-        locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
+        locationManager = (LocationManager) getSystemService(this.LOCATION_SERVICE);
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            if (checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                requestPermissions(new String[]{
+        if (checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                requestPermissions(new String[] {
                         Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.INTERNET
                 }, REQUEST_CODE);
-                return;
             }
+            return;
         } else {
-            GpsButton();
+            AccessGrantedGPS();
         }
 
+    }
+
+    @SuppressLint("MissingPermission")
+    public void AccessGrantedGPS() {
+        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 500, 1, this);
     }
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         switch (requestCode) {
-            case REQUEST_CODE:
-                GpsButton();
+            case 123:
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    AccessGrantedGPS();
+                }
                 return;
         }
-    }
-
-    public void GpsButton() {
-        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 3000, 0, this);
     }
 
     @Override
     public void onLocationChanged(Location location) {
         text_Position.setText("Position: " + "Latitude: " + location.getLatitude() + ", Longitude: " + location.getLongitude());
+        text_Bearing.setText("Bearing: " + location.getBearing());
+        text_Altitude.setText("Altitude: " + location.getAltitude());
+        //*3.6 to convert m/s into km/h
+        text_Speed.setText("Speed (km/h): " + (location.getSpeed()) * 3.6f);
+        text_Accuracy.setText("Location accuracy (m): " + location.getAccuracy());
     }
 
     @Override
