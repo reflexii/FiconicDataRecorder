@@ -22,6 +22,12 @@ import android.provider.Settings;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
+
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity implements SensorEventListener, LocationListener {
 
@@ -47,11 +53,17 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
     //Location
     private LocationManager locationManager;
-
     private SensorManager sensorManager;
 
     //Request code
     public static final int REQUEST_CODE = 123;
+
+    private Location currentLocation;
+    private String currentTimestamp;
+    private Calendar calendar;
+    private SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd - HH:mm:ss");
+    private ArrayList<String> data = new ArrayList<>();
+    private int currentFileIndex = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -70,14 +82,20 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
         buttonStart = findViewById(R.id.button_Start);
         buttonStop = findViewById(R.id.button_Stop);
+        buttonStop.setEnabled(false);
 
         //Setup start button
         buttonStart.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                buttonStop.setEnabled(true);
+                buttonStart.setEnabled(false);
+
+                ResetGPSFields();
                 StartAccelerometer();
-                EnableTimeStamp();
+                UpdateTimeStamp();
                 EnableLocation();
+
             }
         });
 
@@ -85,7 +103,11 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         buttonStop.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                buttonStop.setEnabled(false);
+                buttonStart.setEnabled(true);
+
                 StopIncomingData();
+                SaveDataToCSV();
             }
         });
 
@@ -113,6 +135,14 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
     }
 
+    public void ResetGPSFields() {
+        text_Position.setText("Position: ");
+        text_Bearing.setText("Bearing: ");
+        text_Altitude.setText("Altitude: ");
+        text_Speed.setText("Speed (km/h): ");
+        text_Accuracy.setText("Location accuracy (m): ");
+    }
+
     //Change values on accelerometer
     @Override
     public void onSensorChanged(SensorEvent event) {
@@ -122,6 +152,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             currentAccelZ = event.values[2];
 
             UpdateAccelerometerValues();
+            UpdateTimeStamp();
         }
     }
 
@@ -137,10 +168,82 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         text_Z.setText("Z: " + currentAccelZ);
     }
 
-    public void EnableTimeStamp() {
-        Calendar calendar = Calendar.getInstance();
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd - HH:mm:ss");
-        text_Timestamp.setText(sdf.format(calendar.getTime()));
+    public void UpdateTimeStamp() {
+        calendar = Calendar.getInstance();
+        currentTimestamp = sdf.format(calendar.getTime());
+        text_Timestamp.setText(currentTimestamp);
+
+        UpdateDataList();
+    }
+
+    public void UpdateDataList() {
+
+        StringBuilder sb = new StringBuilder();
+        sb.append(currentTimestamp + ",");
+
+        if (currentLocation == null) {
+            sb.append("null,null,null,null,null,null,");
+        } else {
+            sb.append(currentLocation.getLatitude() + ",");
+            sb.append(currentLocation.getLongitude() + ",");
+            sb.append(currentLocation.getBearing() + ",");
+            sb.append(currentLocation.getAltitude() + ",");
+            sb.append((currentLocation.getSpeed()*3.6f) + ",");
+            sb.append(currentLocation.getAccuracy() + ",");
+        }
+
+        sb.append(currentAccelX + ",");
+        sb.append(currentAccelY + ",");
+        sb.append(currentAccelZ + "\n");
+
+        data.add(sb.toString());
+
+    }
+
+    public void SaveDataToCSV() {
+
+        String filePath = getFilesDir() + "/";
+        String fileName = "data" + currentFileIndex + ".csv";
+
+        FileOutputStream fos = null;
+
+        File existsFile = new File(filePath + fileName);
+
+        while (existsFile.exists()) {
+            currentFileIndex++;
+            fileName = "data" + currentFileIndex + ".csv";
+            existsFile = new File(filePath + fileName);
+        }
+
+        try {
+
+            fos = openFileOutput(fileName, MODE_PRIVATE);
+
+            //Add defines
+            String defines = "Timestamp,Latitude,Longitude,Bearing,Altitude,Speed (km/h),Location Accuracy (m),Accelerometer X,Accelerometer Y,Accelerometer Z\n";
+            fos.write(defines.getBytes());
+
+            //Add data
+            for (int i = 0; i < data.size(); i++) {
+                fos.write(data.get(i).getBytes());
+            }
+
+            Toast.makeText(this, "Saved to: " + filePath + fileName, Toast.LENGTH_LONG).show();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            if (fos != null) {
+                try {
+                    fos.close();
+                    data.clear();
+                    currentLocation = null;
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+
     }
 
     public void EnableLocation() {
@@ -159,6 +262,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
     }
 
+    //Permission already asked
     @SuppressLint("MissingPermission")
     public void AccessGrantedGPS() {
         locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 500, 1, this);
@@ -177,12 +281,17 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
     @Override
     public void onLocationChanged(Location location) {
+
+        currentLocation = location;
+
         text_Position.setText("Position: " + "Latitude: " + location.getLatitude() + ", Longitude: " + location.getLongitude());
         text_Bearing.setText("Bearing: " + location.getBearing());
         text_Altitude.setText("Altitude: " + location.getAltitude());
         //*3.6 to convert m/s into km/h
         text_Speed.setText("Speed (km/h): " + (location.getSpeed()) * 3.6f);
         text_Accuracy.setText("Location accuracy (m): " + location.getAccuracy());
+
+        UpdateTimeStamp();
     }
 
     @Override
@@ -200,4 +309,5 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
         startActivity(intent);
     }
+
 }
